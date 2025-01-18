@@ -13,7 +13,7 @@ export type WaypointType = {
 };
 
 const App: React.FC = () => {
-  const [drawingMode, setDrawingMode] = useState<'linestring' | 'polygon' | null>(null);
+  const [drawingMode, setDrawingMode] = useState<'LineString' | 'Polygon' | null>(null);
   const [lineStringWaypoints, setLineStringWaypoints] = useState<WaypointType[]>([]);
   const [polygonWaypoints, setPolygonWaypoints] = useState<WaypointType[]>([]);
   const [showMissionModal, setShowMissionModal] = useState(false);
@@ -22,9 +22,9 @@ const App: React.FC = () => {
 
   const mapRef = useRef<any>(null);
 
-  const handleDrawStart = (mode: 'linestring' | 'polygon') => {
+  const handleDrawStart = (mode: 'LineString' | 'Polygon') => {
     setDrawingMode(mode);
-    if (mode === 'linestring') {
+    if (mode === 'LineString') {
       setShowMissionModal(true);
     } else {
       setShowPolygonModal(true);
@@ -32,23 +32,31 @@ const App: React.FC = () => {
   };
 
   const handleDrawEnd = (geometry: LineString | Polygon) => {
-    const coordinates = geometry.getCoordinates();
-    const waypoints = coordinates.map((coord: Coordinate, index: number) => ({ coordinates: coord, 
+    let coordinates: Coordinate[] = [];
+  
+    if (geometry instanceof Polygon) {
+      coordinates = geometry.getCoordinates()[0]; 
+    } else {
+      coordinates = geometry.getCoordinates();
+    }
+  
+    const waypoints = coordinates.map((coord: Coordinate, index: number) => ({
+      coordinates: coord,
       distance: index > 0 ? calculateDistance(coordinates[index - 1], coord) : 0,
     }));
-
+  
     if (geometry instanceof LineString) {
       setLineStringWaypoints(waypoints);
     } else if (geometry instanceof Polygon) {
       setPolygonWaypoints(waypoints);
     }
-
+  
     setDrawingMode(null);
   };
 
   const handleInsertPolygon = (index: number, position: 'before' | 'after') => {
     setInsertPolygonIndex(position === 'before' ? index : index + 1);
-    setDrawingMode('polygon');
+    setDrawingMode('Polygon');
     setShowMissionModal(false);
     setShowPolygonModal(true);
   };
@@ -77,7 +85,7 @@ const App: React.FC = () => {
     <div className="h-screen flex flex-col">
       {memoizedMap}
       <div className="absolute top-4 left-4">
-        <DrawButton onClick={() => handleDrawStart('linestring')} />
+        <DrawButton onClick={() => handleDrawStart('LineString')} />
       </div>
       {showMissionModal && (
         <MissionModal
