@@ -45,12 +45,21 @@ const MapDrawingApp: React.FC = () => {
   }
 
   const handleDrawEnd = (geometry: LineString | Polygon) => {
-    const coordinates = geometry.getCoordinates();
+    let coordinates: Coordinate[];
+  
+    if (geometry instanceof LineString) {
+      coordinates = geometry.getCoordinates(); // LineString returns a flat array of coordinates
+    } else if (geometry instanceof Polygon) {
+      coordinates = geometry.getCoordinates()[0]; // Polygon returns a nested array, extract the first ring
+    } else {
+      return;
+    }
+  
     const waypoints = coordinates.map((coord: Coordinate, index: number) => ({
       coordinates: coord,
       distance: index > 0 ? calculateDistance(coordinates[index - 1], coord) : 0,
     }));
-
+  
     if (geometry instanceof LineString) {
       setLineStringWaypoints(waypoints);
       setShowMissionModal(true);
@@ -58,7 +67,7 @@ const MapDrawingApp: React.FC = () => {
       setPolygonWaypoints(waypoints);
       setShowPolygonModal(true);
     }
-
+  
     setDrawingMode(null);
   };
 
