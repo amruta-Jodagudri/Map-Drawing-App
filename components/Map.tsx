@@ -10,14 +10,17 @@ import { Draw, Modify } from 'ol/interaction'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { LineString, Polygon } from 'ol/geom'
-import { fromLonLat } from 'ol/proj'
 
 interface MapProps {
   drawingMode: 'LineString' | 'Polygon' | null
   onDrawEnd: (geometry: LineString | Polygon) => void
 }
 
-const MapComponent = forwardRef<any, MapProps>(({ drawingMode, onDrawEnd }, ref) => {
+export interface MapRef {
+  getMap: () => Map | null
+}
+
+const MapComponent = forwardRef<MapRef, MapProps>(({ drawingMode, onDrawEnd }, ref) => {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<Map | null>(null)
   const drawInteractionRef = useRef<Draw | null>(null)

@@ -34,6 +34,7 @@ const MapDrawingApp: React.FC = () => {
   const [insertPolygonIndex, setInsertPolygonIndex] = useState<number | null>(null)
 
   const mapRef = useRef<any>(null)
+  
 
   const handleDrawStart = (mode: 'LineString' | 'Polygon') => {
     setDrawingMode(mode)
